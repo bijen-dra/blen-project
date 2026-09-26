@@ -1,0 +1,13 @@
+{
+  "style": "../styles/relay.json",
+  "render": {"res": 512, "samples": 32, "tex": 1024},
+  "assets": [
+    {"asset": "pillar", "seeds": [1, 2, 3], "params": {"height": 7, "width": 3.2}},
+    {"asset": "cliff_wall", "seeds": [1, 2], "params": {"length": 7, "height": 4, "depth": 3}},
+    {"asset": "stairs", "seeds": [1], "params": {"steps": 10, "tread": "stone"}},
+    {"asset": "stairs", "seeds": [2], "params": {"steps": 8, "tread": "wood", "width": 1.2}},
+    {"asset": "rock", "seeds": [1, 2, 3, 4], "params": {"size": 1.2}},
+    {"asset": "crate", "seeds": [1, 2]},
+    {"asset": "lantern", "seeds": [1]}
+  ]
+}

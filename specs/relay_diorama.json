@@ -1,0 +1,16 @@
+{
+  "items": [
+    {"asset": "cliff_wall", "seed": 4, "params": {"length": 8, "height": 4, "depth": 3.2}, "at": [0, 0, 0]},
+    {"asset": "stairs", "seed": 2, "params": {"steps": 13, "rise": 0.3, "run": 0.42, "width": 1.3, "tread": "stone"}, "at": [-6.9, -2.9, 0]},
+    {"asset": "pillar", "seed": 3, "params": {"height": 9, "width": 3.0}, "at": [6.5, 4.5, -1.0]},
+    {"asset": "lantern", "seed": 1, "at": [0.6, -1.9, 4.26]},
+    {"asset": "crate", "seed": 1, "at": [2.6, -0.8, 4.26], "yaw": 12},
+    {"asset": "crate", "seed": 2, "at": [3.3, 0.3, 4.26], "yaw": -20},
+    {"asset": "crate", "seed": 3, "params": {"size": 0.6}, "at": [2.9, -0.7, 5.05], "yaw": 40},
+    {"asset": "rock", "seed": 2, "params": {"size": 0.7}, "at": [-2.5, 0.6, 4.26]},
+    {"asset": "rock", "seed": 5, "params": {"size": 1.1}, "at": [5.0, -2.4, 0.3]},
+    {"asset": "rock", "seed": 8, "params": {"size": 1.4}, "at": [-4.8, 1.0, 0.4]}
+  ],
+  "camera": {"azimuth": -28, "elevation": 10, "lens": 35, "margin": 0.8},
+  "clouds": 40
+}

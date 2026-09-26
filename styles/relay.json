@@ -1,0 +1,78 @@
+{
+  "name": "relay",
+  "references": [
+    "../refs/ref_pillar.png",
+    "../refs/ref_plinth.png"
+  ],
+  "palette_srgb": {
+    "crevice": [
+      0.156,
+      0.117,
+      0.113
+    ],
+    "shadow": [
+      0.205,
+      0.223,
+      0.296
+    ],
+    "mid": [
+      0.457,
+      0.488,
+      0.596
+    ],
+    "lit": [
+      0.677,
+      0.606,
+      0.597
+    ],
+    "highlight": [
+      0.848,
+      0.586,
+      0.313
+    ],
+    "wood_dark": [
+      0.273,
+      0.189,
+      0.152
+    ],
+    "wood_lit": [
+      0.515,
+      0.368,
+      0.271
+    ],
+    "warm_light": [
+      0.848,
+      0.586,
+      0.313
+    ],
+    "sky_top": [
+      0.3,
+      0.45,
+      0.75
+    ],
+    "sky_horizon": [
+      0.95,
+      0.8,
+      0.7
+    ]
+  },
+  "light": {
+    "sun_dir": [
+      0.75,
+      0.45,
+      -0.55
+    ],
+    "sun_energy": 5.5,
+    "sky_strength": 0.55,
+    "look": "AgX - Punchy"
+  },
+  "shape": {
+    "facet_cuts": [
+      6,
+      10
+    ],
+    "bevel": 0.035,
+    "edge_highlight": 0.6,
+    "crack_density": 0.5
+  }
+}

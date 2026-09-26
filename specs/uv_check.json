@@ -1,0 +1,2 @@
+{"style": "../styles/relay.json", "render": {"res": 384, "samples": 16, "tex": 1024},
+ "assets": [{"asset": "cabin", "seeds": [1]}, {"asset": "crate", "seeds": [1]}, {"asset": "rock", "seeds": [2]}]}
