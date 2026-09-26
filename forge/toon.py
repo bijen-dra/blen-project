@@ -7,6 +7,9 @@
        Keeps texture/painted detail and colour in the shadows. Best general default.
   cvo  Comparative Value Overlay: like dso, but bands come from comparing light against the base
        colour's own value, so dark and light materials band consistently. Most flexible, slowest.
+  rim  Painted warm-to-cool (LINEWALKER character bible): a soft two-tone split, lit side nudged warm,
+       shadow side shifted cool (not just darker), plus a soft view-facing rim that separates the
+       figure from a dark background. Used without outlines. Default for characters.
 
 Optional inverted-hull outline (works the same in game engines).
 Shader-to-RGB only exists in EEVEE, so toon renders use EEVEE; on a machine without a GPU this needs
@@ -41,7 +44,8 @@ def _bands(g, value, stops):
     return ramp.outputs["Color"]
 
 
-def toonify(mat, style, method="dso", thresholds=(0.12, 0.45, 0.85)):
+def toonify(mat, style, method="dso", thresholds=(0.12, 0.45, 0.85), rim_strength=0.55,
+            rim_color=(1.0, 0.86, 0.68)):
     """Rewire an existing forge material to a toon output, reusing its painted base colour."""
     P = {k: srgb_to_lin(v) for k, v in style["palette_srgb"].items()}
     g = G.__new__(G)
@@ -51,7 +55,8 @@ def toonify(mat, style, method="dso", thresholds=(0.12, 0.45, 0.85)):
     out = g.N["Material Output"]
     link = next((l for l in g.nt.links if l.to_socket == g.bsdf.inputs["Base Color"]), None)
     base = link.from_socket if link else g.mix(0.0, tuple(g.bsdf.inputs["Base Color"].default_value[:3]), (0, 0, 0))
-    light = g.math("DIVIDE", _light_value(g), style["light"]["sun_energy"])  # ~0 in shadow, ~1 fully lit
+    # EEVEE diffuse under a sun of strength E peaks near E/pi, so this maps full sun to ~1
+    light = g.math("DIVIDE", _light_value(g), style["light"]["sun_energy"] / 3.14159)  # ~0 shadow, ~1 lit
     t0, t1, t2 = thresholds
     if method == "pgp":
         col = _bands(g, light, [(0.0, P["crevice"]), (t0, P["shadow"]), (t1, P["mid"]), (t2, P["highlight"])])
@@ -67,6 +72,20 @@ def toonify(mat, style, method="dso", thresholds=(0.12, 0.45, 0.85)):
         bw = g.node("ShaderNodeRGBToBW")
         g.link(shade, bw.inputs["Color"])
         col = g.mix(bw.outputs["Val"], tinted, base)
+    elif method == "light":  # debug: show the normalised light value
+        col = g.mix(light, (0, 0, 0), (1, 1, 1))
+    elif method == "rim":
+        # soft terminator instead of a hard step: painted, not cel
+        lit = g.remap(light, t0, t0 + 0.25)
+        warm = g.mix(0.18, base, P["warm_light"], "OVERLAY")
+        cool = g.mix(1.0, base, g.mix(0.45, P["shadow"], (1, 1, 1)), "MULTIPLY")
+        cool = g.mix(0.25, cool, P["shadow"], "HUE")  # shadows lean toward the style's cool hue
+        col = g.mix(lit, cool, warm)
+        lw = g.node("ShaderNodeLayerWeight")
+        lw.inputs["Blend"].default_value = 0.5
+        rim = g.remap(lw.outputs["Facing"], 0.62, 0.9)
+        rim = g.math("MULTIPLY", rim, rim_strength)
+        col = g.mix(rim, col, rim_color, "SCREEN")
     else:  # dso
         shade = _bands(g, light, [(0.0, (0.0,) * 3), (t1, (0.6,) * 3), (t2, (1.0,) * 3)])
         tint = g.mix(0.35, P["shadow"], (1, 1, 1))  # shadows keep colour, shifted toward the style's shadow hue
@@ -98,16 +117,21 @@ def outline(obj, thickness=0.02, color=(0.02, 0.02, 0.04)):
     return sol
 
 
-def toon_render(objs, style, path, method="dso", outlines=True, **render_kw):
-    """Render with EEVEE toon materials (copies materials, leaves the originals for baking/export)."""
+def toon_render(objs, style, path, method="dso", outlines=None, sun_shadows=False, **render_kw):
+    """Render with EEVEE toon materials (copies materials, leaves the originals for baking/export).
+    Sun shadow maps are off by default: on headless software EGL they come back fully shadowed,
+    which made every band read as shadow. Shading still comes from the surface normals."""
     from . import stage
     for o in objs:
         for i, m in enumerate(o.data.materials):
             if m.name.startswith(("Glow", "Outline")):
                 continue
             o.data.materials[i] = toonify(m.copy(), style, method)
-        if outlines:
+        if outlines if outlines is not None else method != "rim":
             outline(o)
+    for o in bpy.data.objects:
+        if o.type == "LIGHT":
+            o.data.use_shadow = sun_shadows
     scene = bpy.context.scene
     scene.render.engine = "BLENDER_EEVEE"
     scene.eevee.taa_render_samples = 16
